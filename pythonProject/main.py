@@ -8,32 +8,42 @@ turn_limit = 50
 
 
 def setup(sheep_no, init_pos_lim):
-    sheep_list = [Sheep(init_pos_lim, sheep_move_dist) for _ in range(sheep_no)]
+    sheep_list = [Sheep(init_pos_lim, sheep_move_dist)
+                  for _ in range(sheep_no)]
     wolf = Wolf(wolf_move_dist)
     return sheep_list, wolf
 
 
 def simulate(wolf, sheeps):
     for turn in range(turn_limit):
+        #COMMIT_COMMENT If added to end the simulation if there is no sheep left
+        # Also handling index out of range error in Wolf.distance_to function if
+        # there is no sheep with index 0
+        if (len(sheeps) == 0):
+            return
+        eaten_sheep = -1 # -1 means no sheep was eaten
         for sheep in sheeps:
             sheep.move()
         closest_sheep = wolf.find_closest_sheep(sheeps)
-        log(turn + 1, wolf, sheeps)
         if wolf.distance_to(closest_sheep) <= wolf.move_range:
-            sheeps.remove(closest_sheep)
+            #COMMIT_COMMENT Changed this if
+            eaten_sheep = sheeps.index(closest_sheep)
+            wolf.eat_sheep(closest_sheep, sheeps)
         else:
-            wolf.move_to(closest_sheep)
+            wolf.move(closest_sheep)
+
+        log(turn + 1, wolf, sheeps, eaten_sheep)
 
 
-def log(turn_count, wolf, sheeps):
+#COMMIT_COMMENT Changed wolf's position display, information about the eaten
+# sheep and formatted output
+def log(turn_count, wolf, sheeps, eaten_sheep):
     print(f"Turn no: {turn_count}")
-    print(f"Wolf position x: {wolf.position[0]}, y: {wolf.position[1]}")
-    i = 1
+    print(f"Wolf position: ({round(wolf.position[0], 3)}, {round(wolf.position[1], 3)})")
+    if (eaten_sheep != -1):
+        print(f"The sheep with number {eaten_sheep} was eaten!")
     print(f"Sheeps alive: {len(sheeps)}")
-    for sh in sheeps:
-        print(f"Sheep no. {i}, position x: {sh.position[0]}, y: {sh.position[1]}, "
-              f"distance to wolf: {sh.distance_to(wolf)}")
-        i += 1
+    print("------------------------------\n")
 
 
 def __main__():
