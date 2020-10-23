@@ -8,8 +8,8 @@ turn_limit = 50
 
 
 def setup(sheep_no, init_pos_lim):
-    sheep_list = [Sheep(init_pos_lim, sheep_move_dist)
-                  for _ in range(sheep_no)]
+    sheep_list = [Sheep(init_pos_lim, sheep_move_dist, x)
+                  for x in range(sheep_no)]
     wolf = Wolf(wolf_move_dist)
     return sheep_list, wolf
 
@@ -21,27 +21,25 @@ def simulate(wolf, sheeps):
         # there is no sheep with index 0
         if (len(sheeps) == 0):
             return
-        eaten_sheep = -1 # -1 means no sheep was eaten
         for sheep in sheeps:
             sheep.move()
         closest_sheep = wolf.find_closest_sheep(sheeps)
         if wolf.distance_to(closest_sheep) <= wolf.move_range:
             #COMMIT_COMMENT Changed this if
-            eaten_sheep = sheeps.index(closest_sheep)
             wolf.eat_sheep(closest_sheep, sheeps)
         else:
             wolf.move(closest_sheep)
 
-        log(turn + 1, wolf, sheeps, eaten_sheep)
+        log(turn + 1, wolf, sheeps, closest_sheep)
 
 
 #COMMIT_COMMENT Changed wolf's position display, information about the eaten
 # sheep and formatted output
-def log(turn_count, wolf, sheeps, eaten_sheep):
+def log(turn_count, wolf, sheeps, closest_sheep):
     print(f"Turn no: {turn_count}")
     print(f"Wolf position: ({round(wolf.position[0], 3)}, {round(wolf.position[1], 3)})")
-    if (eaten_sheep != -1):
-        print(f"The sheep with number {eaten_sheep} was eaten!")
+    if (closest_sheep.alive == False):
+        print(f"The sheep with number {closest_sheep.id} was eaten!")
     print(f"Sheeps alive: {len(sheeps)}")
     print("------------------------------\n")
 

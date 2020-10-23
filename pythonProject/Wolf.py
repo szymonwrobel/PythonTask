@@ -22,6 +22,7 @@ class Wolf (Animal):
     #COMMIT_COMMENT Function added as it was neccessary
     def eat_sheep(self, unlucky_sheep, sheeps):
         self.position = unlucky_sheep.position
+        unlucky_sheep.sheep_killed()
         sheeps.remove(unlucky_sheep)
 
 
