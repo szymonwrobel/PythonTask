@@ -1,11 +1,22 @@
 from Sheep import Sheep
 from Wolf import Wolf
 import json
+import csv
 
 
 sheep_move_dist = 0.5
 wolf_move_dist = 2.0
 turn_limit = 50
+
+def write_to_csv(round_number, alive_sheeps):
+    # This if clears the file
+    if round_number == 1:
+        f = open("alive.csv", "w+")
+        f.close()
+    with open("alive.csv", "a", newline="") as csvfile:
+        fieldnames = ["round_no", "alive_sheep"]
+        writer = csv.DictWriter(csvfile, fieldnames)
+        writer.writerow({"round_no": round_number, "alive_sheep": alive_sheeps})
 
 def write_to_json(round_number, wolf, sheeps):
     sheeps_info = []
@@ -20,9 +31,9 @@ def write_to_json(round_number, wolf, sheeps):
         "sheeps_info": sheeps_info
     }
     if round_number == 1:
-        file = open("pos.json", "w")
-    else:
-        file = open("pos.json", "a")
+        f = open("pos.json", "w+")
+        f.close()
+    file = open("pos.json", "a+")
     file.write(json.dumps(content, indent = 2))
     file.close()
 
@@ -54,6 +65,7 @@ def simulate(wolf, sheeps):
 
         log(turn + 1, wolf, sheeps, closest_sheep)
         write_to_json(turn + 1, wolf, sheeps)
+        write_to_csv(turn + 1, get_alive_sheeps(sheeps))
 
 def log(turn_count, wolf, sheeps, closest_sheep):
     print(f"Turn no: {turn_count}")
