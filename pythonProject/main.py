@@ -41,7 +41,7 @@ def get_alive_sheeps(sheeps):
 
 def simulate(wolf, sheeps):
     for turn in range(turn_limit):
-        if (get_alive_sheeps(sheeps) == 0):
+        if get_alive_sheeps(sheeps) == 0:
             return
         for sheep in sheeps:
             if sheep.alive == True:
@@ -58,7 +58,7 @@ def simulate(wolf, sheeps):
 def log(turn_count, wolf, sheeps, closest_sheep):
     print(f"Turn no: {turn_count}")
     print(f"Wolf position: ({round(wolf.position[0], 3)}, {round(wolf.position[1], 3)})")
-    if (closest_sheep.alive == False):
+    if closest_sheep.alive == False:
         print(f"The sheep with number {closest_sheep.id} was eaten!")
     print(f"Sheeps alive: {get_alive_sheeps(sheeps)}")
     print("------------------------------\n")
