@@ -1,4 +1,4 @@
 .vscode/
 pythonProject/__pycache__/
-pos.json
-alive.csv
+*pos.json
+*alive.csv
