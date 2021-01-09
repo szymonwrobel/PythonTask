@@ -3,6 +3,7 @@ from Wolf import Wolf
 import FileWriter
 import argparse
 from configparser import ConfigParser
+import msvcrt
 
 sheep_move_dist = 0.5
 wolf_move_dist = 2.0
@@ -20,7 +21,7 @@ parser.add_argument('-d', '--dir', help='set a directory to save files', metavar
 parser.add_argument('-l', '--log', help='set a level of events (DEBUG|INFO|WARNING|ERROR|CRITICAL) to be stored in a journal', metavar='LEVEL', dest='log_level')
 parser.add_argument('-r', '--rounds', help='set a number of rounds', metavar='NUM', dest='round_limit', type=check_positive)
 parser.add_argument('-s', '--sheep', help='set a number of sheep in the simulation', metavar='NUM', dest='sheep_nr', type=check_positive)
-parser.add_argument('-w', '--wait', action='store_true', help='wait for user\'s input after every round', dest='wait_arg')
+parser.add_argument('-w', '--wait', action='store_true', help='wait for user\'s input after every round', dest='wait')
 args = parser.parse_args()
 
 def setup(sheep_no, init_pos_lim):
@@ -36,7 +37,7 @@ def get_alive_sheeps(sheeps):
             i = i + 1
     return i
 
-def simulate(wolf, sheeps, directory):
+def simulate(wolf, sheeps, directory, wait):
     for round in range(round_limit):
         if get_alive_sheeps(sheeps) == 0:
             return
@@ -52,6 +53,9 @@ def simulate(wolf, sheeps, directory):
         log(round + 1, wolf, sheeps, closest_sheep)
         FileWriter.write_to_json(round + 1, wolf, sheeps, directory)
         FileWriter.write_to_csv(round + 1, get_alive_sheeps(sheeps), directory)
+        
+        if wait:
+            msvcrt.getch()
 
 def log(round_count, wolf, sheeps, closest_sheep):
     print(f"Round no: {round_count}")
@@ -84,19 +88,24 @@ if __name__ == '__main__':
     init_pos_limit = 10.0
     sheep_nr = 15
     directory = "pythonProject/"
+    wait = False
 
     if args.config_file:
         init_pos_limit, sheep_move_dist, wolf_move_dist = parse_config_file(args.config_file)
     if args.directory:
         directory = args.directory
+    ###
     if args.round_limit:
         round_limit = args.round_limit
     if args.sheep_nr:
         sheep_nr = args.sheep_nr
+    if args.wait:
+        wait = args.wait
+
+
 
     
     sheeps, wolf = setup(sheep_nr, init_pos_limit)
-    simulate(wolf, sheeps, directory)
+    simulate(wolf, sheeps, directory, wait)
 
 #'--log',       metavar='LEVEL',      dest='log_level'
-#'--wait',      action='store_true',  dest='wait_arg'
