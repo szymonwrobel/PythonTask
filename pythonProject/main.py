@@ -68,10 +68,17 @@ def parse_config_file(file):
     sheep_move = config.get('Movement', 'SheepMoveDist')
     wolf_move = config.get('Movement', 'WolfMoveDist')
 
-    if not isinstance(init_pos, float) and not isinstance(sheep_move, float) and not isinstance(wolf_move, float):
-        if float(init_pos) < 0 or float(sheep_move) < 0 or float(wolf_move) < 0:
-            raise ValueError("Input provided in config file is incorrect.")
-    return float(init_pos), float(sheep_move), float(wolf_move)
+    try:
+        f_init_pos = float(init_pos)
+        f_sheep_move = float(sheep_move)
+        f_wolf_move = float(wolf_move)
+    except (ValueError, TypeError):
+        raise ValueError("An input provided in a config file must be a float.")
+
+    if f_init_pos <= 0 or f_sheep_move <= 0 or f_wolf_move <= 0:
+        raise ValueError("An input provided in a config file must be greater than 0.")
+
+    return f_init_pos, f_sheep_move, f_wolf_move    
 
 if __name__ == '__main__':
     init_pos_limit = 10.0
