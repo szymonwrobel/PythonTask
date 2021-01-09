@@ -27,7 +27,7 @@ def write_to_json(round_number, wolf, sheeps, directory):
         "round" + str(round_number): {
         "round_no": round_number,
         "wolf_pos": f"{wolf.position[0]}, {wolf.position[1]}",
-        "sheeps_info": sheeps_info
+        "sheep_info": sheeps_info
         }
     }
     if round_number == 1:
