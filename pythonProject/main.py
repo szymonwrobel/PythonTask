@@ -1,9 +1,10 @@
 from Sheep import Sheep
 from Wolf import Wolf
-import FileWriter
+import FileWriter as fw
 import argparse
 from configparser import ConfigParser
 import msvcrt
+import logging
 
 sheep_move_dist = 0.5
 wolf_move_dist = 2.0
@@ -51,8 +52,8 @@ def simulate(wolf, sheeps, directory, wait):
             wolf.move(closest_sheep)
 
         log(round + 1, wolf, sheeps, closest_sheep)
-        FileWriter.write_to_json(round + 1, wolf, sheeps, directory)
-        FileWriter.write_to_csv(round + 1, get_alive_sheeps(sheeps), directory)
+        fw.write_to_json(round + 1, wolf, sheeps, directory)
+        fw.write_to_csv(round + 1, get_alive_sheeps(sheeps), directory)
         
         if wait:
             msvcrt.getch()
@@ -94,7 +95,24 @@ if __name__ == '__main__':
         init_pos_limit, sheep_move_dist, wolf_move_dist = parse_config_file(args.config_file)
     if args.directory:
         directory = args.directory
-    ###
+    if args.log_level:
+        if args.log_level == "DEBUG":
+            log_level = logging.DEBUG
+        elif args.log_level == "INFO":
+            log_level = logging.INFO
+        elif args.log_level == "WARNING":
+            log_level = logging.WARNING
+        elif args.log_level == "ERROR":
+            log_level = logging.ERROR
+        elif args.log_level == "CRITICAL":
+            log_level = logging.CRITICAL
+        else:
+            raise ValueError("Events' level should be one of the following: DEBUG, INFO, WARNING, ERROR, CRITICAL.")
+        file_path = fw.get_file_path(directory, "chase.log")
+        logging.basicConfig(filename=file_path, format="%(asctime)s: %(levelname)s: %(message)s", level=log_level)
+        f = open(file_path, "w+")
+        f.close()
+
     if args.round_limit:
         round_limit = args.round_limit
     if args.sheep_nr:
@@ -102,10 +120,11 @@ if __name__ == '__main__':
     if args.wait:
         wait = args.wait
 
-
-
+    # fw.write_to_log("halko halko test debug", logging.DEBUG, log_level)
+    # fw.write_to_log("halko halko test info", logging.INFO, log_level)
+    # fw.write_to_log("halko halko test warning", logging.WARNING, log_level)
+    # fw.write_to_log("halko halko test error", logging.ERROR, log_level)
+    # fw.write_to_log("halko halko test critical", logging.CRITICAL, log_level)
     
     sheeps, wolf = setup(sheep_nr, init_pos_limit)
     simulate(wolf, sheeps, directory, wait)
-
-#'--log',       metavar='LEVEL',      dest='log_level'

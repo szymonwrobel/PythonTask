@@ -1,6 +1,7 @@
 import json
 import csv
 import os
+import logging
 
 def write_to_csv(round_number, alive_sheeps, directory):
     file_path = get_file_path(directory, "alive.csv")
@@ -42,6 +43,26 @@ def write_to_json(round_number, wolf, sheeps, directory):
         data.update(dictionary)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=2)
+
+def write_to_log(message, message_log_level, log_level):
+    log_dictionary = {
+        logging.DEBUG: 10,
+        logging.INFO: 20,
+        logging.WARNING: 30,
+        logging.ERROR: 40,
+        logging.CRITICAL: 50
+    }
+    if (log_dictionary[message_log_level] >= log_dictionary[log_level]):
+        if message_log_level == logging.DEBUG:
+            logging.debug(message)
+        elif message_log_level == logging.INFO:
+            logging.info(message)
+        elif message_log_level == logging.WARNING:
+            logging.warning(message)
+        elif message_log_level == logging.ERROR:
+            logging.error(message)
+        elif message_log_level == logging.CRITICAL:
+            logging.critical(message)
 
 def get_file_path(directory, file_name):
     file_dir = os.getcwd() + '\\' + directory
