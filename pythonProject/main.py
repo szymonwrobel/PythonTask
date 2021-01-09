@@ -2,6 +2,11 @@ from Sheep import Sheep
 from Wolf import Wolf
 import FileWriter
 import argparse
+from configparser import ConfigParser
+
+sheep_move_dist = 0.5
+wolf_move_dist = 2.0
+turn_limit = 50
 
 def check_positive(value):
     ivalue = int(value)
@@ -10,17 +15,13 @@ def check_positive(value):
     return ivalue
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-c', '--config', help='set a config file where init_pos_limit, sheep_move_dist and wolf_move_dist are stored.', metavar='FILE', dest='config_file' )
+parser.add_argument('-c', '--config', help='set a config file where init_pos_limit, sheep_move_dist and wolf_move_dist are stored.', metavar='FILE', dest='config_file')
 parser.add_argument('-d', '--dir', help='set a directory to save files', metavar='DIR', dest='directory')
-parser.add_argument('-l', '--log', help='set a level of events to be stored in a journal', metavar='LEVEL', dest='log_level')
+parser.add_argument('-l', '--log', help='set a level of events (DEBUG|INFO|WARNING|ERROR|CRITICAL) to be stored in a journal', metavar='LEVEL', dest='log_level')
 parser.add_argument('-r', '--rounds', help='set a number of rounds', metavar='NUM', dest='turn_limit', type=check_positive)
 parser.add_argument('-s', '--sheep', help='set a number of sheep in the simulation', metavar='NUM', dest='sheep_nr', type=check_positive)
 parser.add_argument('-w', '--wait', action='store_true', help='wait for user\'s input after every round', dest='wait_arg')
 args = parser.parse_args()
-
-sheep_move_dist = 0.5
-wolf_move_dist = 2.0
-turn_limit = 50
 
 def setup(sheep_no, init_pos_lim):
     sheep_list = [Sheep(init_pos_lim, sheep_move_dist, x)
@@ -48,7 +49,7 @@ def simulate(wolf, sheeps):
         else:
             wolf.move(closest_sheep)
 
-        log(turn + 1, wolf, sheeps, closest_sheep)
+        # log(turn + 1, wolf, sheeps, closest_sheep)
         FileWriter.write_to_json(turn + 1, wolf, sheeps)
         FileWriter.write_to_csv(turn + 1, get_alive_sheeps(sheeps))
 
@@ -60,10 +61,31 @@ def log(turn_count, wolf, sheeps, closest_sheep):
     print(f"Sheeps alive: {get_alive_sheeps(sheeps)}")
     print("------------------------------\n")
 
+def parse_config_file(file):
+    config = ConfigParser()
+    config.read(file)
+    init_pos = config.get('Terrain', 'InitPosLimit')
+    sheep_move = config.get('Movement', 'SheepMoveDist')
+    wolf_move = config.get('Movement', 'WolfMoveDist')
+
+    if not isinstance(init_pos, float) and not isinstance(sheep_move, float) and not isinstance(wolf_move, float):
+        if float(init_pos) < 0 or float(sheep_move) < 0 or float(wolf_move) < 0:
+            raise ValueError("Input provided in config file is incorrect.")
+    return float(init_pos), float(sheep_move), float(wolf_move)
 
 if __name__ == '__main__':
     init_pos_limit = 10.0
     sheep_nr = 15
 
+    if args.config_file:
+        init_pos_limit, sheep_move_dist, wolf_move_dist = parse_config_file(args.config_file)
+
     sheeps, wolf = setup(sheep_nr, init_pos_limit)
     simulate(wolf, sheeps)
+
+
+#'--dir',       metavar='DIR',        dest='directory'
+#'--log',       metavar='LEVEL',      dest='log_level'
+#'--rounds',    metavar='NUM',        dest='turn_limit',  type=check_positive
+#'--sheep',     metavar='NUM',        dest='sheep_nr',    type=check_positive
+#'--wait',      action='store_true',  dest='wait_arg'
