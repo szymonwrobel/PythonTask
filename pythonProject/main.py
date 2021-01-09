@@ -1,42 +1,26 @@
 from Sheep import Sheep
 from Wolf import Wolf
-import json
-import csv
+import FileWriter
 import argparse
 
+def check_positive(value):
+    ivalue = int(value)
+    if ivalue <= 0:
+        raise argparse.ArgumentTypeError("%s is an invalid positive int value" % value)
+    return ivalue
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-c', '--config', help='set a config file where init_pos_limit, sheep_move_dist and wolf_move_dist are stored.', metavar='FILE', dest='config_file' )
+parser.add_argument('-d', '--dir', help='set a directory to save files', metavar='DIR', dest='directory')
+parser.add_argument('-l', '--log', help='set a level of events to be stored in a journal', metavar='LEVEL', dest='log_level')
+parser.add_argument('-r', '--rounds', help='set a number of rounds', metavar='NUM', dest='turn_limit', type=check_positive)
+parser.add_argument('-s', '--sheep', help='set a number of sheep in the simulation', metavar='NUM', dest='sheep_nr', type=check_positive)
+parser.add_argument('-w', '--wait', action='store_true', help='wait for user\'s input after every round', dest='wait_arg')
+args = parser.parse_args()
 
 sheep_move_dist = 0.5
 wolf_move_dist = 2.0
 turn_limit = 50
-
-def write_to_csv(round_number, alive_sheeps):
-    # This if clears the file
-    if round_number == 1:
-        f = open("alive.csv", "w+")
-        f.close()
-    with open("alive.csv", "a", newline="") as csvfile:
-        fieldnames = ["round_no", "alive_sheep"]
-        writer = csv.DictWriter(csvfile, fieldnames)
-        writer.writerow({"round_no": round_number, "alive_sheep": alive_sheeps})
-
-def write_to_json(round_number, wolf, sheeps):
-    sheeps_info = []
-    for sheep in sheeps:
-        if sheep.alive == True:
-            sheeps_info.append(f"Sheep no {sheep.id}: {sheep.position[0]}, {sheep.position[1]}")
-        else:
-            sheeps_info.append(f"Sheep no {sheep.id}: null")
-    content = {
-        "round_no": round_number,
-        "wolf_pos": f"{wolf.position[0]}, {wolf.position[1]}",
-        "sheeps_info": sheeps_info
-    }
-    if round_number == 1:
-        f = open("pos.json", "w+")
-        f.close()
-    file = open("pos.json", "a+")
-    file.write(json.dumps(content, indent = 2))
-    file.close()
 
 def setup(sheep_no, init_pos_lim):
     sheep_list = [Sheep(init_pos_lim, sheep_move_dist, x)
@@ -65,8 +49,8 @@ def simulate(wolf, sheeps):
             wolf.move(closest_sheep)
 
         log(turn + 1, wolf, sheeps, closest_sheep)
-        write_to_json(turn + 1, wolf, sheeps)
-        write_to_csv(turn + 1, get_alive_sheeps(sheeps))
+        FileWriter.write_to_json(turn + 1, wolf, sheeps)
+        FileWriter.write_to_csv(turn + 1, get_alive_sheeps(sheeps))
 
 def log(turn_count, wolf, sheeps, closest_sheep):
     print(f"Turn no: {turn_count}")
@@ -77,13 +61,9 @@ def log(turn_count, wolf, sheeps, closest_sheep):
     print("------------------------------\n")
 
 
-def __main__():
+if __name__ == '__main__':
     init_pos_limit = 10.0
     sheep_nr = 15
 
     sheeps, wolf = setup(sheep_nr, init_pos_limit)
     simulate(wolf, sheeps)
-
-
-if __name__ == '__main__':
-    __main__()
