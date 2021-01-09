@@ -36,7 +36,7 @@ def get_alive_sheeps(sheeps):
             i = i + 1
     return i
 
-def simulate(wolf, sheeps):
+def simulate(wolf, sheeps, directory):
     for turn in range(turn_limit):
         if get_alive_sheeps(sheeps) == 0:
             return
@@ -50,8 +50,8 @@ def simulate(wolf, sheeps):
             wolf.move(closest_sheep)
 
         # log(turn + 1, wolf, sheeps, closest_sheep)
-        FileWriter.write_to_json(turn + 1, wolf, sheeps)
-        FileWriter.write_to_csv(turn + 1, get_alive_sheeps(sheeps))
+        FileWriter.write_to_json(turn + 1, wolf, sheeps, directory)
+        FileWriter.write_to_csv(turn + 1, get_alive_sheeps(sheeps), directory)
 
 def log(turn_count, wolf, sheeps, closest_sheep):
     print(f"Turn no: {turn_count}")
@@ -83,12 +83,15 @@ def parse_config_file(file):
 if __name__ == '__main__':
     init_pos_limit = 10.0
     sheep_nr = 15
+    directory = "pythonProject/"
 
     if args.config_file:
         init_pos_limit, sheep_move_dist, wolf_move_dist = parse_config_file(args.config_file)
+    if args.directory:
+        directory = args.directory
 
     sheeps, wolf = setup(sheep_nr, init_pos_limit)
-    simulate(wolf, sheeps)
+    simulate(wolf, sheeps, directory)
 
 
 #'--dir',       metavar='DIR',        dest='directory'
