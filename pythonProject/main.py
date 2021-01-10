@@ -112,10 +112,12 @@ def parse_config_file(file):
 if __name__ == '__main__':
     init_pos_limit = 10.0
     sheep_nr = 15
-    directory = "pythonProject/"
+    directory = ""
     wait = False
     log_level = logging.NOTSET
 
+    if args.directory:
+        directory = args.directory
     if args.log_level:
         if args.log_level == "DEBUG":
             log_level = logging.DEBUG
@@ -136,8 +138,6 @@ if __name__ == '__main__':
     if args.config_file:
         init_pos_limit, sheep_move_dist, wolf_move_dist = parse_config_file(args.config_file)
         fw.write_to_log(f"The function parse_config_file(file) returned init_pos_limit={init_pos_limit}, sheep_move_dist={sheep_move_dist}, wolf_move_dist={wolf_move_dist}.", logging.DEBUG, log_level)
-    if args.directory:
-        directory = args.directory
     if args.round_limit:
         round_limit = args.round_limit
     if args.sheep_nr:

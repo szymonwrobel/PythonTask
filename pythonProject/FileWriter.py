@@ -10,12 +10,18 @@ def write_to_csv(round_number, alive_sheeps, directory, log_level):
     
     # This if clears the file
     if round_number == 1:
-        f = open(file_path, "w+")
-        f.close()
-    with open(file_path, "a", newline="") as csvfile:
-        fieldnames = ["round_no", "alive_sheep"]
-        writer = csv.DictWriter(csvfile, fieldnames)
-        writer.writerow({"round_no": round_number, "alive_sheep": alive_sheeps})
+        try:
+            f = open(file_path, "w+")
+            f.close()
+        except EnvironmentError:
+            write_to_log(f"Could not open the file {file_path}.", logging.ERROR, log_level)
+    try:
+        with open(file_path, "a", newline="") as csvfile:
+            fieldnames = ["round_no", "alive_sheep"]
+            writer = csv.DictWriter(csvfile, fieldnames)
+            writer.writerow({"round_no": round_number, "alive_sheep": alive_sheeps})
+    except EnvironmentError:
+        write_to_log(f"Could not write to the file {file_path}.", logging.ERROR, log_level)
 
 def write_to_json(round_number, wolf, sheeps, directory, log_level):
     write_to_log(f"The function write_to_json(round_number, wolf, sheeps, directory, log_level) invoked with argument round_number={round_number}, wolf={wolf}, sheeps={sheeps}, directory={directory}, log_level={log_level}.", logging.DEBUG, log_level)
@@ -35,18 +41,21 @@ def write_to_json(round_number, wolf, sheeps, directory, log_level):
         "sheep_info": sheeps_info
         }
     }
-    if round_number == 1:
-        f = open(file_path, "w+")
-        f.close()
-        file = open(file_path, "a+")
-        file.write(json.dumps(dictionary, indent = 2))
-        file.close()
-    else:
-        with open(file_path) as file:
-            data = json.load(file)
-        data.update(dictionary)
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=2)
+    try:
+        if round_number == 1:
+            f = open(file_path, "w+")
+            f.close()
+            file = open(file_path, "a+")
+            file.write(json.dumps(dictionary, indent = 2))
+            file.close()
+        else:
+            with open(file_path) as file:
+                data = json.load(file)
+            data.update(dictionary)
+            with open(file_path, 'w') as file:
+                json.dump(data, file, indent=2)
+    except EnvironmentError:
+        write_to_log(f"Could not write to the file {file_path}.", logging.ERROR, log_level)
 
 def write_to_log(message, message_log_level, log_level):
     log_dictionary = {
