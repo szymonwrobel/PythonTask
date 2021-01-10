@@ -3,8 +3,10 @@ import csv
 import os
 import logging
 
-def write_to_csv(round_number, alive_sheeps, directory):
+def write_to_csv(round_number, alive_sheeps, directory, log_level):
+    write_to_log(f"The function write_to_csv(round_number, alive_sheeps, directory, log_level) invoked with argument round_number={round_number}, alive_sheeps={alive_sheeps}, directory={directory}, log_level={log_level}.", logging.DEBUG, log_level)
     file_path = get_file_path(directory, "alive.csv")
+    write_to_log(f"The function get_file_path(directory, file_name) returned {file_path}.", logging.DEBUG, log_level)
     
     # This if clears the file
     if round_number == 1:
@@ -15,8 +17,10 @@ def write_to_csv(round_number, alive_sheeps, directory):
         writer = csv.DictWriter(csvfile, fieldnames)
         writer.writerow({"round_no": round_number, "alive_sheep": alive_sheeps})
 
-def write_to_json(round_number, wolf, sheeps, directory):
+def write_to_json(round_number, wolf, sheeps, directory, log_level):
+    write_to_log(f"The function write_to_json(round_number, wolf, sheeps, directory, log_level) invoked with argument round_number={round_number}, wolf={wolf}, sheeps={sheeps}, directory={directory}, log_level={log_level}.", logging.DEBUG, log_level)
     file_path = get_file_path(directory, "pos.json")
+    write_to_log(f"The function get_file_path(directory, file_name) returned {file_path}.", logging.DEBUG, log_level)
 
     sheeps_info = []
     for sheep in sheeps:
@@ -50,9 +54,10 @@ def write_to_log(message, message_log_level, log_level):
         logging.INFO: 20,
         logging.WARNING: 30,
         logging.ERROR: 40,
-        logging.CRITICAL: 50
+        logging.CRITICAL: 50,
+        logging.NOTSET: 0
     }
-    if (log_dictionary[message_log_level] >= log_dictionary[log_level]):
+    if log_dictionary[message_log_level] >= log_dictionary[log_level] and log_dictionary[log_level] != 0:
         if message_log_level == logging.DEBUG:
             logging.debug(message)
         elif message_log_level == logging.INFO:

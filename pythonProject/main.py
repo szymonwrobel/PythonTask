@@ -11,7 +11,10 @@ wolf_move_dist = 2.0
 round_limit = 50
 
 def check_positive(value):
-    ivalue = int(value)
+    try:
+        ivalue = int(value)
+    except (ValueError, TypeError):
+        raise argparse.ArgumentTypeError("%s is an invalid positive int value." % value)
     if ivalue <= 0:
         raise argparse.ArgumentTypeError("%s is an invalid positive int value" % value)
     return ivalue
@@ -26,7 +29,7 @@ parser.add_argument('-w', '--wait', action='store_true', help='wait for user\'s 
 args = parser.parse_args()
 
 def setup(sheep_no, init_pos_lim):
-    fw.write_to_log(f"The function setup(sheep_no, init_pos_lim) invoked with arguments sheep_no={sheep_no}, init_pos_lim={init_pos_lim}.", logging.DEBUG, log_level)
+    fw.write_to_log(f"The function setup(sheep_no, init_pos_lim) invoked with arguments sheep_no={sheep_no}, init_pos_lim={init_pos_lim}, log_level={log_level}.", logging.DEBUG, log_level)
     sheep_list = [Sheep(init_pos_lim, sheep_move_dist, x, log_level)
                   for x in range(sheep_no)]
     wolf = Wolf(wolf_move_dist, log_level)
@@ -67,9 +70,9 @@ def simulate(wolf, sheeps, directory, wait):
 
         log(round + 1, wolf, sheeps, closest_sheep, alive_sheeps)
         fw.write_to_log(f"The function log(round_count, wolf, sheeps, closest_sheep, alive_sheeps) returned None.", logging.DEBUG, log_level)
-        fw.write_to_json(round + 1, wolf, sheeps, directory)
+        fw.write_to_json(round + 1, wolf, sheeps, directory, log_level)
         fw.write_to_log(f"The function write_to_json(round_number, wolf, sheeps, directory) returned None.", logging.DEBUG, log_level)
-        fw.write_to_csv(round + 1, alive_sheeps, directory)
+        fw.write_to_csv(round + 1, alive_sheeps, directory, log_level)
         fw.write_to_log(f"The function write_to_csv(round_number, alive_sheeps, directory) returned None.", logging.DEBUG, log_level)
         
         if wait:
@@ -97,9 +100,11 @@ def parse_config_file(file):
         f_sheep_move = float(sheep_move)
         f_wolf_move = float(wolf_move)
     except (ValueError, TypeError):
+        fw.write_to_log(f"At least one of the variables in the chosen config file could not be converted to a float.", logging.CRITICAL, log_level)
         raise ValueError("An input provided in a config file must be a float.")
 
     if f_init_pos <= 0 or f_sheep_move <= 0 or f_wolf_move <= 0:
+        fw.write_to_log(f"At least one of the variables in the chosen config file was less then or equal to 0.", logging.CRITICAL, log_level)
         raise ValueError("An input provided in a config file must be greater than 0.")
 
     return f_init_pos, f_sheep_move, f_wolf_move    
@@ -109,6 +114,7 @@ if __name__ == '__main__':
     sheep_nr = 15
     directory = "pythonProject/"
     wait = False
+    log_level = logging.NOTSET
 
     if args.log_level:
         if args.log_level == "DEBUG":
@@ -138,6 +144,9 @@ if __name__ == '__main__':
         sheep_nr = args.sheep_nr
     if args.wait:
         wait = args.wait
+
+    if sheep_nr > 100 and round_limit > 100:
+        fw.write_to_log(f"You've set sheep_nr variable to {sheep_nr} and round_limit variable to {round_limit}. Consider choosing lower numbers for better performance.", logging.WARNING, log_level)
     
     sheeps, wolf = setup(sheep_nr, init_pos_limit)
     fw.write_to_log(f"The function setup(sheep_no, init_pos_lim) returned sheeps={sheeps}, wolf={wolf}.", logging.DEBUG, log_level)
