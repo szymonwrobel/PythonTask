@@ -83,7 +83,7 @@ def log(round_count, wolf, sheeps, closest_sheep, alive_sheeps):
     print(f"Round no: {round_count}")
     print(f"Wolf position: ({round(wolf.position[0], 3)}, {round(wolf.position[1], 3)})")
     if closest_sheep.alive == False:
-        print(f"The sheep with number {closest_sheep.id} was eaten!")
+        print(f"The sheep with number {closest_sheep.id} has been eaten!")
     print(f"Sheep alive: {alive_sheeps}")
     print("------------------------------\n")
 
