@@ -133,8 +133,11 @@ if __name__ == '__main__':
             raise ValueError("Events' level should be one of the following: DEBUG, INFO, WARNING, ERROR, CRITICAL.")
         file_path = fw.get_file_path(directory, "chase.log")
         logging.basicConfig(filename=file_path, format="%(asctime)s: %(levelname)s: %(message)s", level=log_level)
-        f = open(file_path, "w+")
-        f.close()
+        try:
+            f = open(file_path, "w+")
+            f.close()
+        except EnvironmentError:
+            raise PermissionError(f"Could not open the file {file_path}.")
     if args.config_file:
         init_pos_limit, sheep_move_dist, wolf_move_dist = parse_config_file(args.config_file)
         fw.write_to_log(f"The function parse_config_file(file) returned init_pos_limit={init_pos_limit}, sheep_move_dist={sheep_move_dist}, wolf_move_dist={wolf_move_dist}.", logging.DEBUG, log_level)
