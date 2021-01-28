@@ -1,5 +1,5 @@
 .vscode/
-pythonProject/__pycache__/
+*/__pycache__/
 *pos.json
 *alive.csv
 *chase.log
